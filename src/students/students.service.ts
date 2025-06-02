@@ -5,6 +5,7 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Injectable()
 export class StudentsService {
@@ -15,8 +16,15 @@ export class StudentsService {
     private readonly courseRepository: Repository<Course>,
   ) {}
 
-  findAll() {
-    return this.studentRepository.find(); // SELECT * FROM students;
+  findAll(paginationQueryDto: PaginationQueryDto) {
+    const { limit, offset } = paginationQueryDto;
+    return this.studentRepository.find({
+      relations: {
+        courses: true,
+      },
+      skip: offset,
+      take: limit,
+    }); // SELECT * FROM students;
   }
 
   async findOne(id: string) {

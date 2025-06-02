@@ -17,6 +17,9 @@ async function bootstrap() {
        * check the instance of createStudentDto
        */
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
   await app.listen(process.env.PORT ?? 3000);

@@ -13,14 +13,15 @@ import {
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Controller('students')
 export class StudentsController {
   constructor(private readonly studentService: StudentsService) {}
 
   @Get()
-  findAll(@Query() paginationQuery) {
-    return this.studentService.findAll();
+  findAll(@Query() paginationQuery: PaginationQueryDto) {
+    return this.studentService.findAll(paginationQuery);
   }
 
   @Get(':id')
