@@ -23,7 +23,10 @@ export class StudentsService {
   }
 
   create(createStudentDto: CreateStudentDto) {
-    this.students.push(createStudentDto);
+    this.students.push({ id: 1, ...createStudentDto });
+    console.log(typeof createStudentDto);
+    console.log(createStudentDto instanceof CreateStudentDto);
+    // console.log(createStudentDto);
     return createStudentDto;
   }
 
