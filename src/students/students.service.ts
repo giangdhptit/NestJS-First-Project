@@ -1,46 +1,76 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Student } from './entities/student.entity';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Course } from './entities/course.entity';
 
 @Injectable()
 export class StudentsService {
-  private students: Student[] = [
-    {
-      id: 1,
-      name: 'John',
-      promotion: 'Spring',
-      courses: ['JS', 'Java'],
-    },
-  ];
+  constructor(
+    @InjectRepository(Student)
+    private readonly studentRepository: Repository<Student>,
+    @InjectRepository(Course)
+    private readonly courseRepository: Repository<Course>,
+  ) {}
 
   findAll() {
-    return this.students;
+    return this.studentRepository.find(); // SELECT * FROM students;
   }
 
-  findOne(id: string) {
-    return this.students.find((item) => item.id === +id);
-  }
-
-  create(createStudentDto: CreateStudentDto) {
-    this.students.push({ id: 1, ...createStudentDto });
-    console.log(typeof createStudentDto);
-    console.log(createStudentDto instanceof CreateStudentDto);
-    // console.log(createStudentDto);
-    return createStudentDto;
-  }
-
-  update(id: string, updateStudentDto: UpdateStudentDto) {
-    const existingStudent = this.findOne(id);
-    if (existingStudent) {
-      // update ...
+  async findOne(id: string) {
+    const student = await this.studentRepository.findOne({
+      where: {
+        id: +id,
+      },
+    });
+    if (!student) {
+      throw new NotFoundException(`Student #${id} not found`);
     }
+    return student;
   }
 
-  remove(id: string) {
-    const studentIndex = this.students.findIndex((item) => item.id === +id);
-    if (studentIndex >= 0) {
-      this.students.splice(studentIndex, 1);
+  async create(createStudentDto: CreateStudentDto) {
+    const courses = await Promise.all(
+      createStudentDto.courses.map((name) => this.preloadCourseByName(name)),
+    );
+    const student = this.studentRepository.create({
+      ...createStudentDto,
+      courses,
+    });
+    return this.studentRepository.save(student);
+  }
+
+  async update(id: string, updateStudentDto: UpdateStudentDto) {
+    const courses =
+      updateStudentDto.courses &&
+      (await Promise.all(
+        updateStudentDto.courses.map((name) => this.preloadCourseByName(name)),
+      ));
+    const student = await this.studentRepository.preload({
+      id: +id,
+      ...updateStudentDto,
+      courses,
+    });
+    if (!student) {
+      throw new NotFoundException(`Student #${id} not found`);
     }
+    return this.studentRepository.save(student);
+  }
+
+  async remove(id: string) {
+    const student = await this.findOne(id);
+    return this.studentRepository.remove(student);
+  }
+
+  private async preloadCourseByName(name: string): Promise<Course> {
+    const existingCourse = await this.courseRepository.findOne({
+      where: { name },
+    });
+    if (existingCourse) {
+      return existingCourse;
+    }
+    return this.courseRepository.create({ name });
   }
 }
