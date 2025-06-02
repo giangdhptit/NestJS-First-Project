@@ -23,4 +23,7 @@ export class Student {
     cascade: true,
   })
   courses: Course[];
+
+  @Column({ default: 0 })
+  recommendations: number;
 }
