@@ -9,6 +9,13 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      /**
+       * auto transform payload DTO instances
+       * because when we receive requests with payloads, these payloads
+       * come over the network as plain JS objects. This is done by design
+       *
+       * check the instance of createStudentDto
+       */
       transform: true,
     }),
   );
