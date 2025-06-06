@@ -5,6 +5,8 @@ import { StudentsModule } from './students/students.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
+import { MongooseModule } from '@nestjs/mongoose';
+import { GradesModule } from './grades/grades.module';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import * as Joi from '@hapi/joi';
       }),
     }),
     StudentsModule,
+    GradesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DATABASE_HOST,
@@ -25,6 +28,7 @@ import * as Joi from '@hapi/joi';
       autoLoadEntities: true, // models will be loaded automatically,
       synchronize: true, // entities will be synced with the database (must be disabled in production)
     }),
+    MongooseModule.forRoot(`mongodb://${process.env.MONGO_HOST}/${process.env.MONGO_DB_NAME}`)
   ],
   controllers: [AppController],
   providers: [AppService],
