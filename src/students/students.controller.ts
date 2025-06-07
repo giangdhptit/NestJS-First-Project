@@ -23,6 +23,7 @@ export class StudentsController {
   @Public()
   @Get()
   findAll(@Query() paginationQuery: PaginationQueryDto) {
+    console.log("I'm here");
     return this.studentService.findAll(paginationQuery);
   }
 
