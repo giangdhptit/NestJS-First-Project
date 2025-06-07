@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { StudentsModule } from './students/students.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { CommonModule } from './common/common.module';
 import * as Joi from '@hapi/joi';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GradesModule } from './grades/grades.module';
